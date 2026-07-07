@@ -1,0 +1,296 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Livewire\Services;
+
+use App\Data\Waqty\ServiceData;
+use App\Services\Waqty\ServiceCatalogService;
+use App\Services\Waqty\WaqtyApiException;
+use App\Support\Concerns\HandlesWaqtyErrors;
+use App\Support\Money;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+
+#[Layout('components.layouts.app')]
+#[Title('Services — Waqty')]
+class Index extends Component
+{
+    use HandlesWaqtyErrors;
+    use WithFileUploads;
+
+    public string $search = '';
+
+    public string $categoryFilter = 'all';
+
+    public int $currentPage = 1;
+
+    public int $perPage = 9;
+
+    // Create/edit slide-over
+    public bool $showForm = false;
+
+    public ?string $editingUuid = null;
+
+    public string $form_name = '';
+
+    public string $form_name_ar = '';
+
+    public string $form_category = '';
+
+    public int $form_duration = 30;
+
+    public string $form_price = '';
+
+    public string $form_description = '';
+
+    public bool $form_active = true;
+
+    public $form_image = null;
+
+    // Delete confirmation
+    public bool $showDelete = false;
+
+    public ?string $deletingUuid = null;
+
+    /** Optimistic active overrides. @var array<string, bool> */
+    public array $overrides = [];
+
+    /** @var array<int, ServiceData>|null per-request memo */
+    private ?array $loaded = null;
+
+    private bool $fallbackUsed = false;
+
+    public function updatedSearch(): void
+    {
+        $this->currentPage = 1;
+    }
+
+    public function updatedCategoryFilter(): void
+    {
+        $this->currentPage = 1;
+    }
+
+    /** @return array<int, ServiceData> */
+    private function source(): array
+    {
+        if ($this->loaded !== null) {
+            return $this->loaded;
+        }
+
+        try {
+            $this->loaded = app(ServiceCatalogService::class)->services();
+        } catch (WaqtyApiException) {
+            $this->fallbackUsed = true;
+            $this->loaded = array_map(fn ($a) => ServiceData::from($a), $this->fallbackData());
+        }
+
+        foreach ($this->loaded as $svc) {
+            if (isset($this->overrides[$svc->uuid])) {
+                $svc->active = $this->overrides[$svc->uuid];
+            }
+        }
+
+        return $this->loaded;
+    }
+
+    public function usingFallback(): bool
+    {
+        $this->source();
+
+        return $this->fallbackUsed;
+    }
+
+    /** @return array<int, ServiceData> */
+    #[Computed]
+    public function filtered(): array
+    {
+        $search = trim(mb_strtolower($this->search));
+        $category = $this->categoryFilter;
+
+        return array_values(array_filter($this->source(), function (ServiceData $s) use ($search, $category) {
+            $matchesSearch = $search === ''
+                || str_contains(mb_strtolower((string) $s->name), $search)
+                || str_contains(mb_strtolower((string) $s->name_ar), $search);
+
+            $matchesCategory = $category === 'all' || $s->categoryName() === $category;
+
+            return $matchesSearch && $matchesCategory;
+        }));
+    }
+
+    /** @return array<int, ServiceData> */
+    #[Computed]
+    public function paginated(): array
+    {
+        return array_slice($this->filtered(), ($this->currentPage - 1) * $this->perPage, $this->perPage);
+    }
+
+    #[Computed]
+    public function total(): int
+    {
+        return count($this->filtered());
+    }
+
+    /** @return array{total:int, active:int, categories:int, avgPrice:int} */
+    #[Computed]
+    public function kpis(): array
+    {
+        $all = $this->source();
+        $priced = array_values(array_filter(array_map(fn (ServiceData $s) => $s->price, $all), fn ($p) => $p !== null && $p > 0));
+
+        return [
+            'total' => count($all),
+            'active' => count(array_filter($all, fn (ServiceData $s) => $s->active)),
+            'categories' => count(array_unique(array_filter(array_map(fn (ServiceData $s) => $s->categoryName(), $all)))),
+            'avgPrice' => $priced === [] ? 0 : (int) round(array_sum($priced) / count($priced)),
+        ];
+    }
+
+    /** Distinct category names present in the current list. @return array<int, string> */
+    #[Computed]
+    public function categories(): array
+    {
+        $names = array_filter(array_map(fn (ServiceData $s) => $s->categoryName(), $this->source()));
+
+        return array_values(array_unique($names));
+    }
+
+    public function openCreate(): void
+    {
+        $this->reset(['editingUuid', 'form_name', 'form_name_ar', 'form_category', 'form_price', 'form_description', 'form_image']);
+        $this->form_duration = 30;
+        $this->form_active = true;
+        $this->resetValidation();
+        $this->showForm = true;
+    }
+
+    public function openEdit(string $uuid): void
+    {
+        $service = collect($this->source())->firstWhere('uuid', $uuid);
+        if (! $service) {
+            return;
+        }
+
+        $this->editingUuid = $uuid;
+        $this->form_name = (string) $service->name;
+        $this->form_name_ar = (string) $service->name_ar;
+        $this->form_category = (string) $service->categoryName();
+        $this->form_duration = $service->estimated_duration_minutes ?? 30;
+        $this->form_price = $service->price ? (string) Money::fromMinor($service->price) : '';
+        $this->form_description = (string) $service->description;
+        $this->form_active = $service->active;
+        $this->form_image = null;
+        $this->resetValidation();
+        $this->showForm = true;
+    }
+
+    public function save(): void
+    {
+        $this->validate([
+            'form_name' => ['required', 'string', 'max:100'],
+            'form_name_ar' => ['nullable', 'string', 'max:100'],
+            'form_category' => ['nullable', 'string', 'max:100'],
+            'form_duration' => ['required', 'integer', 'min:5', 'max:480'],
+            'form_price' => ['nullable', 'numeric', 'min:0'],
+            'form_description' => ['nullable', 'string', 'max:500'],
+            'form_image' => ['nullable', 'image', 'max:2048'],
+        ]);
+
+        $fields = array_filter([
+            'name' => trim($this->form_name),
+            'name_ar' => trim($this->form_name_ar) ?: null,
+            'category' => trim($this->form_category) ?: null,
+            'estimated_duration_minutes' => $this->form_duration,
+            'base_price' => $this->form_price !== '' ? Money::toMinor((float) $this->form_price) : null,
+            'description' => trim($this->form_description) ?: null,
+            'active' => $this->form_active ? '1' : '0',
+        ], fn ($v) => $v !== null);
+
+        $files = $this->form_image ? ['image' => $this->form_image] : [];
+
+        $service = app(ServiceCatalogService::class);
+
+        $result = $this->waqty(function () use ($service, $fields, $files) {
+            $this->editingUuid
+                ? $service->updateService($this->editingUuid, $fields, $files)
+                : $service->createService($fields, $files);
+
+            return true;
+        }, __('waqty.genericError'));
+
+        if ($result) {
+            $this->showForm = false;
+            $this->dispatch('notify', type: 'success', message: __('common.saved'));
+            $this->editingUuid = null;
+            unset($this->filtered, $this->paginated, $this->total, $this->kpis, $this->categories);
+        }
+    }
+
+    public function toggleActive(string $uuid): void
+    {
+        $svc = collect($this->source())->firstWhere('uuid', $uuid);
+        if (! $svc) {
+            return;
+        }
+        $next = ! $svc->active;
+        $this->overrides[$uuid] = $next;
+
+        if (! $this->usingFallback()) {
+            $this->waqty(fn () => app(ServiceCatalogService::class)->toggleActive($uuid, $next) ?? true, __('waqty.genericError'));
+        }
+
+        unset($this->filtered, $this->paginated, $this->total, $this->kpis);
+    }
+
+    public function confirmDelete(string $uuid): void
+    {
+        $this->deletingUuid = $uuid;
+        $this->showDelete = true;
+    }
+
+    public function deleteService(): void
+    {
+        if (! $this->deletingUuid) {
+            return;
+        }
+
+        $service = app(ServiceCatalogService::class);
+        $uuid = $this->deletingUuid;
+
+        $result = $this->waqty(fn () => $service->deleteService($uuid) ?? true, __('waqty.genericError'));
+
+        $this->showDelete = false;
+        $this->deletingUuid = null;
+
+        if ($result) {
+            $this->dispatch('notify', type: 'success', message: __('common.deleted'));
+            unset($this->filtered, $this->paginated, $this->total, $this->kpis, $this->categories);
+        }
+    }
+
+    public function render()
+    {
+        return view('livewire.services.index');
+    }
+
+    /** Sample catalog mirroring the source fallback for graceful degradation. */
+    private function fallbackData(): array
+    {
+        return [
+            ['uuid' => 'S001', 'name' => 'Classic Haircut', 'name_ar' => 'قصة شعر كلاسيكية', 'sub_category' => ['name' => 'Hair'], 'estimated_duration_minutes' => 30, 'active' => true, 'price' => 15000, 'description' => 'Wash, cut and style.'],
+            ['uuid' => 'S002', 'name' => 'Beard Trim', 'name_ar' => 'تهذيب اللحية', 'sub_category' => ['name' => 'Hair'], 'estimated_duration_minutes' => 20, 'active' => true, 'price' => 8000],
+            ['uuid' => 'S003', 'name' => 'Hair Color', 'name_ar' => 'صبغة شعر', 'sub_category' => ['name' => 'Color'], 'estimated_duration_minutes' => 90, 'active' => true, 'price' => 45000, 'description' => 'Full color with premium products.'],
+            ['uuid' => 'S004', 'name' => 'Manicure', 'name_ar' => 'مانيكير', 'sub_category' => ['name' => 'Nails'], 'estimated_duration_minutes' => 45, 'active' => true, 'price' => 20000],
+            ['uuid' => 'S005', 'name' => 'Pedicure', 'name_ar' => 'باديكير', 'sub_category' => ['name' => 'Nails'], 'estimated_duration_minutes' => 50, 'active' => true, 'price' => 25000],
+            ['uuid' => 'S006', 'name' => 'Deep Tissue Massage', 'name_ar' => 'مساج عميق', 'sub_category' => ['name' => 'Spa'], 'estimated_duration_minutes' => 60, 'active' => true, 'price' => 55000, 'description' => 'Therapeutic full-body massage.'],
+            ['uuid' => 'S007', 'name' => 'Facial Treatment', 'name_ar' => 'تنظيف بشرة', 'sub_category' => ['name' => 'Spa'], 'estimated_duration_minutes' => 60, 'active' => false, 'price' => 40000],
+            ['uuid' => 'S008', 'name' => 'Kids Haircut', 'name_ar' => 'قص شعر أطفال', 'sub_category' => ['name' => 'Hair'], 'estimated_duration_minutes' => 20, 'active' => true, 'price' => 10000],
+            ['uuid' => 'S009', 'name' => 'Bridal Makeup', 'name_ar' => 'مكياج عرائس', 'sub_category' => ['name' => 'Makeup'], 'estimated_duration_minutes' => 120, 'active' => true, 'price' => 150000, 'description' => 'Complete bridal look.'],
+            ['uuid' => 'S010', 'name' => 'Gel Nails', 'name_ar' => 'أظافر جل', 'sub_category' => ['name' => 'Nails'], 'estimated_duration_minutes' => 60, 'active' => true, 'price' => 30000],
+        ];
+    }
+}

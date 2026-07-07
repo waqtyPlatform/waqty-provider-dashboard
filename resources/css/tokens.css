@@ -1,0 +1,183 @@
+/*
+ * Base layer, animations, print, and non-color tokens ported from the source
+ * `globals.css`. Color/font/radius/shadow tokens live in app.css `@theme`.
+ */
+
+:root {
+    /* Spacing scale (4px grid) — matches Tailwind's default numeric spacing. */
+    --space-0: 0px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --space-20: 80px;
+
+    /* Type scale */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+    --text-5xl: 3rem;
+
+    --tracking-tighter: -0.03em;
+    --tracking-tight: -0.018em;
+    --tracking-wide: 0.05em;
+
+    --leading-tight: 1.25;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.75;
+
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Layout */
+    --sidebar-width: 260px;
+    --sidebar-collapsed: 72px;
+    --topbar-height: 64px;
+    --content-max-width: 1440px;
+
+    /* Z-index scale */
+    --z-base: 0;
+    --z-dropdown: 1000;
+    --z-sticky: 1100;
+    --z-header: 1150;
+    --z-overlay: 1200;
+    --z-modal: 1300;
+    --z-toast: 1400;
+    --z-tooltip: 1500;
+}
+
+@layer base {
+    html {
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+
+    body {
+        font-family: var(--font-sans);
+        color: var(--color-fg);
+        background: var(--color-surface-2);
+        line-height: var(--leading-normal);
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        letter-spacing: var(--tracking-tight);
+        line-height: var(--leading-tight);
+        text-wrap: balance;
+    }
+
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-primary-500);
+        outline-offset: 2px;
+        border-radius: var(--radius-sm);
+    }
+
+    ::selection {
+        background: var(--color-primary-100);
+        color: var(--color-primary-900);
+    }
+}
+
+/* Alpine: hide elements until initialised. */
+[x-cloak] {
+    display: none !important;
+}
+
+/* Tabular figures for money/metrics so digits align in columns. */
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--color-gray-300);
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gray-400);
+}
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+    background: var(--color-gray-600);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideInUp {
+    from { transform: translateY(12px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+@keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-fade-in { animation: fadeIn var(--transition-normal) both; }
+.animate-slide-right { animation: slideInRight var(--transition-normal) both; }
+.animate-slide-up { animation: slideInUp var(--transition-normal) both; }
+.animate-scale-in { animation: scaleIn var(--transition-normal) both; }
+
+/* Print */
+@media print {
+    body { background: white !important; color: #111827 !important; }
+    header, nav, .sidebar, [data-topbar], [data-sidebar], [data-no-print] {
+        display: none !important;
+    }
+    main { margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
+    @page { margin: 1cm; size: A4; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
