@@ -35,15 +35,12 @@
                                 <x-ui.badge :color="$this->levelLabel($role) === __('settings.roles.levelFull') ? 'primary' : ($this->levelLabel($role) === __('settings.roles.levelNone') ? 'neutral' : 'info')">{{ $this->levelLabel($role) }}</x-ui.badge>
                             </td>
                             <td class="px-4 py-3 text-end">
-                                <div x-data="{ o: false }" @click.outside="o = false" class="relative inline-block">
-                                    <button @click="o = !o" class="grid size-8 place-items-center rounded-lg text-fg-subtle hover:bg-surface-3"><x-icon name="more-vertical" class="size-4" /></button>
-                                    <div x-show="o" x-cloak class="absolute end-0 z-10 mt-1 w-44 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg">
-                                        <button wire:click="openEdit('{{ $role['id'] }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="pencil" class="size-4" />{{ __('settings.roles.editPerms') }}</button>
-                                        @unless ($role['system'] ?? false)
-                                            <button wire:click="confirmDelete('{{ $role['id'] }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-error hover:bg-error-light"><x-icon name="trash-2" class="size-4" />{{ __('settings.roles.deleteRole') }}</button>
-                                        @endunless
-                                    </div>
-                                </div>
+                                <x-ui.dropdown>
+                                    <x-ui.dropdown-item icon="pencil" wire:click="openEdit('{{ $role['id'] }}')">{{ __('settings.roles.editPerms') }}</x-ui.dropdown-item>
+                                    @unless ($role['system'] ?? false)
+                                        <x-ui.dropdown-item icon="trash-2" wire:click="confirmDelete('{{ $role['id'] }}')" destructive>{{ __('settings.roles.deleteRole') }}</x-ui.dropdown-item>
+                                    @endunless
+                                </x-ui.dropdown>
                             </td>
                         </tr>
                     @empty
@@ -57,7 +54,7 @@
     <x-ui.slide-over wire="showForm" :title="$editingId ? __('settings.roles.editTitle') : __('settings.roles.createTitle')" maxWidth="max-w-2xl">
         <form wire:submit="save" class="flex flex-1 flex-col overflow-y-auto">
             <div class="flex-1 space-y-5 p-5">
-                <x-ui.input :label="__('settings.roles.roleName')" wire:model="form_name" :placeholder="__('settings.roles.namePh')" :error="$errors->first('form_name')" />
+                <x-ui.input :label="__('settings.roles.roleName')" wire:model="form_name" :placeholder="__('settings.roles.namePh')" :error="$errors->first('form_name')" required />
 
                 <div>
                     <p class="mb-2 text-sm font-semibold text-fg">{{ __('settings.roles.granularPerms') }}</p>
@@ -98,7 +95,7 @@
             </div>
             <div class="flex items-center justify-end gap-2 border-t border-line px-5 py-4">
                 <x-ui.button type="button" variant="secondary" @click="open = false">{{ __('settings.roles.cancel') }}</x-ui.button>
-                <x-ui.button type="submit">{{ $editingId ? __('settings.roles.saveChanges') : __('settings.roles.saveRole') }}</x-ui.button>
+                <x-ui.button type="submit" loadingTarget="save">{{ $editingId ? __('settings.roles.saveChanges') : __('settings.roles.saveRole') }}</x-ui.button>
             </div>
         </form>
     </x-ui.slide-over>

@@ -1,6 +1,6 @@
 @php use Illuminate\Support\Carbon; use App\Support\Money; @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('sidebar.statements')" :subtitle="__('stmt.subtitle')" />
 
     @if ($this->usingFallback())

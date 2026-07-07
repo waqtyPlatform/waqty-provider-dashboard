@@ -1,4 +1,4 @@
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('sidebar.groups')" :subtitle="__('custGroups.noGroupsDesc')">
         <x-slot:actions>
             <x-ui.button icon="plus" wire:click="openCreate">{{ __('custGroups.newGroup') }}</x-ui.button>
@@ -23,13 +23,10 @@
                             <span class="size-4 shrink-0 rounded-full" style="background-color: {{ $g->color ?: '#64748b' }}"></span>
                             <h3 class="font-semibold text-fg">{{ $g->name }}</h3>
                         </div>
-                        <div x-data="{ o: false }" @click.outside="o = false" class="relative">
-                            <button @click="o = !o" class="grid size-8 place-items-center rounded-lg text-fg-subtle hover:bg-surface-2"><x-icon name="more-vertical" class="size-4" /></button>
-                            <div x-show="o" x-cloak class="absolute end-0 z-10 mt-1 w-40 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg">
-                                <button wire:click="openEdit('{{ $g->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="pencil" class="size-4" />{{ __('custGroups.editGroup') }}</button>
-                                <button wire:click="confirmDelete('{{ $g->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-error hover:bg-error-light"><x-icon name="trash-2" class="size-4" />{{ __('custGroups.deleteGroup') }}</button>
-                            </div>
-                        </div>
+                        <x-ui.dropdown>
+                            <x-ui.dropdown-item icon="pencil" wire:click="openEdit('{{ $g->uuid }}')">{{ __('custGroups.editGroup') }}</x-ui.dropdown-item>
+                            <x-ui.dropdown-item icon="trash-2" wire:click="confirmDelete('{{ $g->uuid }}')" destructive>{{ __('custGroups.deleteGroup') }}</x-ui.dropdown-item>
+                        </x-ui.dropdown>
                     </div>
                     @if ($g->description)
                         <p class="mt-2 line-clamp-2 text-sm text-fg-muted">{{ $g->description }}</p>
@@ -49,8 +46,8 @@
     <x-ui.slide-over wire="showForm" :title="$editingUuid ? __('custGroups.editGroup') : __('custGroups.createGroup')">
         <form wire:submit="save" class="flex flex-1 flex-col overflow-y-auto">
             <div class="flex-1 space-y-4 p-5">
-                <x-ui.input :label="__('custGroups.groupName')" wire:model="form_name" :placeholder="__('custGroups.groupNamePlaceholder')" :error="$errors->first('form_name')" />
-                <x-ui.input type="number" :label="__('custGroups.discountPercent')" wire:model="form_discount" min="0" max="100" step="0.5" :error="$errors->first('form_discount')" />
+                <x-ui.input :label="__('custGroups.groupName')" wire:model="form_name" :placeholder="__('custGroups.groupNamePlaceholder')" :error="$errors->first('form_name')" required />
+                <x-ui.input type="number" :label="__('custGroups.discountPercent')" wire:model="form_discount" min="0" max="100" step="0.5" :error="$errors->first('form_discount')" required />
                 <div>
                     <label class="mb-1.5 block text-sm font-medium text-fg">{{ __('sales.lblColor') }}</label>
                     <div class="flex items-center gap-3">
@@ -66,7 +63,7 @@
             </div>
             <div class="flex items-center justify-end gap-2 border-t border-line px-5 py-4">
                 <x-ui.button type="button" variant="secondary" @click="open = false">{{ __('common.cancel') }}</x-ui.button>
-                <x-ui.button type="submit" wire:loading.attr="disabled" wire:target="save">{{ __('custGroups.saveGroup') }}</x-ui.button>
+                <x-ui.button type="submit" loadingTarget="save">{{ __('custGroups.saveGroup') }}</x-ui.button>
             </div>
         </form>
     </x-ui.slide-over>

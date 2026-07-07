@@ -8,7 +8,7 @@
     $channelColors = ['sms' => 'info', 'whatsapp' => 'success', 'email' => 'warning', 'push' => 'neutral'];
 @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('mkt.messages.title')" :subtitle="__('mkt.messages.desc')">
         <x-slot:actions>
             <x-ui.button icon="plus" wire:click="openCreate">{{ __('mkt.btnNewTemplate') }}</x-ui.button>
@@ -46,13 +46,10 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 text-end">
-                                    <div x-data="{ o: false }" @click.outside="o = false" class="relative inline-block">
-                                        <button @click="o = !o" class="grid size-8 place-items-center rounded-lg text-fg-subtle hover:bg-surface-3"><x-icon name="more-vertical" class="size-4" /></button>
-                                        <div x-show="o" x-cloak class="absolute end-0 z-10 mt-1 w-36 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg">
-                                            <button wire:click="openEdit('{{ $m['id'] }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="pencil" class="size-4" />{{ __('common.edit') }}</button>
-                                            <button wire:click="confirmDelete('{{ $m['id'] }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-error hover:bg-error-light"><x-icon name="trash-2" class="size-4" />{{ __('common.delete') }}</button>
-                                        </div>
-                                    </div>
+                                    <x-ui.dropdown>
+                                        <x-ui.dropdown-item icon="pencil" wire:click="openEdit('{{ $m['id'] }}')">{{ __('common.edit') }}</x-ui.dropdown-item>
+                                        <x-ui.dropdown-item icon="trash-2" wire:click="confirmDelete('{{ $m['id'] }}')" destructive>{{ __('common.delete') }}</x-ui.dropdown-item>
+                                    </x-ui.dropdown>
                                 </td>
                             </tr>
                         @endforeach
@@ -66,8 +63,8 @@
     <x-ui.slide-over wire="showForm" :title="$editingId ? __('mkt.lblEditTemplate') : __('mkt.lblCreateNewTemplate')">
         <form wire:submit="save" class="flex flex-1 flex-col overflow-y-auto">
             <div class="flex-1 space-y-4 p-5">
-                <x-ui.input :label="__('mkt.lblTemplateName')" wire:model="form_name" :placeholder="__('mkt.phTemplateName')" :error="$errors->first('form_name')" />
-                <x-ui.select :label="__('mkt.lblChannel')" wire:model="form_channel" :options="$channelLabels" />
+                <x-ui.input :label="__('mkt.lblTemplateName')" wire:model="form_name" :placeholder="__('mkt.phTemplateName')" required :error="$errors->first('form_name')" />
+                <x-ui.select :label="__('mkt.lblChannel')" wire:model="form_channel" required :options="$channelLabels" />
                 <div>
                     <label class="mb-1.5 block text-sm font-medium text-fg">{{ __('mkt.lblMessageBody') }}</label>
                     <textarea wire:model="form_body" rows="4" maxlength="300" placeholder="{{ __('mkt.phTypeMessage') }}" class="w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-sm text-fg placeholder:text-fg-subtle focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"></textarea>
@@ -76,7 +73,7 @@
             </div>
             <div class="flex items-center justify-end gap-2 border-t border-line px-5 py-4">
                 <x-ui.button type="button" variant="secondary" @click="open = false">{{ __('common.cancel') }}</x-ui.button>
-                <x-ui.button type="submit">{{ __('common.save') }}</x-ui.button>
+                <x-ui.button type="submit" loadingTarget="save">{{ __('common.save') }}</x-ui.button>
             </div>
         </form>
     </x-ui.slide-over>

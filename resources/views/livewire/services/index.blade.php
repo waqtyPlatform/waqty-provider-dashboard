@@ -1,6 +1,6 @@
 @php use App\Support\Money; @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('sidebar.services')" :subtitle="__('sales.lblServices')">
         <x-slot:actions>
             <x-ui.button icon="plus" wire:click="openCreate">{{ __('settings.services.addService') }}</x-ui.button>
@@ -8,7 +8,7 @@
     </x-ui.page-header>
 
     @if ($this->usingFallback())
-        <x-ui.alert type="info" class="mb-4">{{ __('common.sampleData') ?? 'Showing sample data — the live API is unavailable.' }}</x-ui.alert>
+        <x-ui.alert type="info" class="mb-4">{{ __('common.sampleData') }}</x-ui.alert>
     @endif
 
     {{-- KPIs --}}
@@ -85,7 +85,7 @@
                             <p class="mt-2 line-clamp-2 text-sm text-fg-muted">{{ $s->description }}</p>
                         @endif
                         <div class="mt-auto flex items-center justify-between pt-3">
-                            <span class="flex items-center gap-1.5 text-sm text-fg-subtle"><x-icon name="clock" class="size-3.5" />{{ $s->estimated_duration_minutes ?? '—' }} {{ __('sales.minutesShort') ?? 'min' }}</span>
+                            <span class="flex items-center gap-1.5 text-sm text-fg-subtle"><x-icon name="clock" class="size-3.5" />{{ $s->estimated_duration_minutes ?? '—' }} {{ __('sales.minutesShort') }}</span>
                             <span class="font-semibold tabular-nums text-primary-600">{{ $s->price ? Money::format($s->price) : '—' }}</span>
                         </div>
                     </div>
@@ -102,7 +102,7 @@
     <x-ui.slide-over wire="showForm" :title="$editingUuid ? __('common.edit').' '.__('sidebar.services') : __('settings.services.addService')">
             <form wire:submit="save" class="flex flex-1 flex-col overflow-y-auto">
                 <div class="flex-1 space-y-4 p-5">
-                    <x-ui.input :label="__('sales.lblServices')" wire:model="form_name" :error="$errors->first('form_name')" />
+                    <x-ui.input :label="__('sales.lblServices')" wire:model="form_name" :error="$errors->first('form_name')" required />
                     <x-ui.input label="الاسم بالعربية" wire:model="form_name_ar" dir="rtl" :error="$errors->first('form_name_ar')" />
                     <x-ui.input :label="__('sidebar.svcCategories')" wire:model="form_category" :error="$errors->first('form_category')" list="svc-categories" />
                     <datalist id="svc-categories">
@@ -111,11 +111,11 @@
                         @endforeach
                     </datalist>
                     <div class="grid grid-cols-2 gap-3">
-                        <x-ui.input type="number" :label="__('sales.minutesShort')" wire:model="form_duration" min="5" max="480" :error="$errors->first('form_duration')" />
+                        <x-ui.input type="number" :label="__('sales.minutesShort')" wire:model="form_duration" min="5" max="480" :error="$errors->first('form_duration')" required />
                         <x-ui.input type="number" :label="__('sales.lblRegularPrice')" wire:model="form_price" min="0" step="0.01" :error="$errors->first('form_price')" />
                     </div>
                     <div>
-                        <label class="mb-1.5 block text-sm font-medium text-fg">{{ __('sales.lblNotes') ?? 'Description' }}</label>
+                        <label class="mb-1.5 block text-sm font-medium text-fg">{{ __('sales.lblNotes') }}</label>
                         <textarea wire:model="form_description" rows="3" class="w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-sm text-fg focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"></textarea>
                         @error('form_description') <p class="mt-1.5 text-xs text-error">{{ $message }}</p> @enderror
                     </div>
@@ -132,7 +132,7 @@
                 </div>
                 <div class="flex items-center justify-end gap-2 border-t border-line px-5 py-4">
                     <x-ui.button type="button" variant="secondary" @click="open = false">{{ __('common.cancel') }}</x-ui.button>
-                    <x-ui.button type="submit" wire:loading.attr="disabled" wire:target="save,form_image">{{ __('common.save') }}</x-ui.button>
+                    <x-ui.button type="submit" loadingTarget="save,form_image">{{ __('common.save') }}</x-ui.button>
                 </div>
             </form>
     </x-ui.slide-over>

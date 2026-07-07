@@ -3,7 +3,7 @@
     use Illuminate\Support\Carbon;
 @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('sidebar.bookingList')" :subtitle="__('sidebar.bookings')">
         <x-slot:actions>
             <x-ui.button href="{{ route('bookings.new') }}" wire:navigate icon="plus">{{ __('dash.newBooking') }}</x-ui.button>
@@ -76,15 +76,12 @@
                                 <td class="px-4 py-3"><x-ui.status-pill :status="$b->status" :label="$b->statusEnum()->label()" /></td>
                                 <td class="px-4 py-3 text-end font-medium tabular-nums text-primary-600">{{ $b->price ? Money::format($b->price) : '—' }}</td>
                                 <td class="px-4 py-3 text-end">
-                                    <div x-data="{ o: false }" @click.outside="o = false" class="relative inline-block">
-                                        <button @click="o = !o" class="grid size-8 place-items-center rounded-lg text-fg-subtle hover:bg-surface-3"><x-icon name="more-vertical" class="size-4" /></button>
-                                        <div x-show="o" x-cloak class="absolute end-0 z-10 mt-1 w-40 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg">
-                                            <a href="{{ route('bookings.detail', $b->uuid) }}" wire:navigate class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="calendar-check" class="size-4" />{{ __('dash.details') }}</a>
-                                            @unless ($b->statusEnum()->isTerminal())
-                                                <button wire:click="confirmCancel('{{ $b->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-error hover:bg-error-light"><x-icon name="x" class="size-4" />{{ __('dash.statusCancelled') }}</button>
-                                            @endunless
-                                        </div>
-                                    </div>
+                                    <x-ui.dropdown>
+                                        <a href="{{ route('bookings.detail', $b->uuid) }}" wire:navigate class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="calendar-check" class="size-4" />{{ __('dash.details') }}</a>
+                                        @unless ($b->statusEnum()->isTerminal())
+                                            <x-ui.dropdown-item icon="x" wire:click="confirmCancel('{{ $b->uuid }}')" destructive>{{ __('dash.statusCancelled') }}</x-ui.dropdown-item>
+                                        @endunless
+                                    </x-ui.dropdown>
                                 </td>
                             </tr>
                         @endforeach

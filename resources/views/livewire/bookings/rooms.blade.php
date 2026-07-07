@@ -9,7 +9,7 @@
     $isToday = $date === Carbon::today()->toDateString();
 @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     {{-- Header --}}
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">

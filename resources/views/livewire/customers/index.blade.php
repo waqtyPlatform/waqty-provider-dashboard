@@ -1,14 +1,14 @@
 @php use App\Support\Money; @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('sidebar.clients')" :subtitle="__('dash.welcome')">
         <x-slot:actions>
-            <x-ui.button icon="user-plus" wire:click="openCreate">{{ __('customers.addClient') ?? 'Add Client' }}</x-ui.button>
+            <x-ui.button icon="user-plus" wire:click="openCreate">{{ __('customers.addClient') }}</x-ui.button>
         </x-slot:actions>
     </x-ui.page-header>
 
     @if ($this->usingFallback())
-        <x-ui.alert type="info" class="mb-4">{{ __('common.sampleData') ?? 'Showing sample data — the live API is unavailable.' }}</x-ui.alert>
+        <x-ui.alert type="info" class="mb-4">{{ __('common.sampleData') }}</x-ui.alert>
     @endif
 
     {{-- KPIs --}}
@@ -55,12 +55,12 @@
                 <table class="w-full min-w-[720px] text-sm">
                     <thead>
                         <tr class="border-b border-line text-start text-xs font-semibold uppercase tracking-wide text-fg-subtle">
-                            <th class="px-4 py-3 text-start font-semibold">{{ __('customers.colClient') ?? 'Client' }}</th>
-                            <th class="px-4 py-3 text-start font-semibold">{{ __('customers.colContact') ?? 'Contact' }}</th>
-                            <th class="px-4 py-3 text-start font-semibold">{{ __('customers.colGroup') ?? 'Group' }}</th>
+                            <th class="px-4 py-3 text-start font-semibold">{{ __('customers.colClient') }}</th>
+                            <th class="px-4 py-3 text-start font-semibold">{{ __('customers.colContact') }}</th>
+                            <th class="px-4 py-3 text-start font-semibold">{{ __('customers.colGroup') }}</th>
                             <th class="px-4 py-3 text-end font-semibold">{{ __('dash.colVisits') }}</th>
                             <th class="px-4 py-3 text-end font-semibold">{{ __('customers.colTotalSpend') }}</th>
-                            <th class="px-4 py-3 text-start font-semibold">{{ __('customers.colLastVisit') ?? 'Last Visit' }}</th>
+                            <th class="px-4 py-3 text-start font-semibold">{{ __('customers.colLastVisit') }}</th>
                             <th class="px-4 py-3"></th>
                         </tr>
                     </thead>
@@ -97,14 +97,11 @@
                                 <td class="px-4 py-3 text-end font-medium tabular-nums text-primary-600">{{ Money::format($c->total_spent) }}</td>
                                 <td class="px-4 py-3 {{ $c->last_visit ? 'text-fg-muted' : 'text-error' }}">{{ $c->last_visit ?? '—' }}</td>
                                 <td class="px-4 py-3 text-end">
-                                    <div x-data="{ o: false }" @click.outside="o = false" class="relative inline-block">
-                                        <button @click="o = !o" class="grid size-8 place-items-center rounded-lg text-fg-subtle hover:bg-surface-3"><x-icon name="more-vertical" class="size-4" /></button>
-                                        <div x-show="o" x-cloak class="absolute end-0 z-10 mt-1 w-40 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg">
-                                            <a href="{{ route('customers.detail', $c->uuid) }}" wire:navigate class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="user-plus" class="size-4" />{{ __('dash.details') }}</a>
-                                            <button wire:click="openEdit('{{ $c->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="pencil" class="size-4" />{{ __('common.edit') }}</button>
-                                            <button wire:click="confirmDelete('{{ $c->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-error hover:bg-error-light"><x-icon name="trash-2" class="size-4" />{{ __('common.delete') ?? 'Delete' }}</button>
-                                        </div>
-                                    </div>
+                                    <x-ui.dropdown>
+                                        <a href="{{ route('customers.detail', $c->uuid) }}" wire:navigate class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="user-plus" class="size-4" />{{ __('dash.details') }}</a>
+                                        <x-ui.dropdown-item icon="pencil" wire:click="openEdit('{{ $c->uuid }}')">{{ __('common.edit') }}</x-ui.dropdown-item>
+                                        <x-ui.dropdown-item icon="trash-2" wire:click="confirmDelete('{{ $c->uuid }}')" destructive>{{ __('common.delete') }}</x-ui.dropdown-item>
+                                    </x-ui.dropdown>
                                 </td>
                             </tr>
                         @endforeach
@@ -120,10 +117,10 @@
     <x-ui.slide-over wire="showForm" :title="$editingUuid ? __('customers.editClientTitle') : __('customers.addClient')">
         <form wire:submit="save" class="flex flex-1 flex-col overflow-y-auto">
             <div class="flex-1 space-y-4 p-5">
-                <x-ui.input :label="__('customers.fullName')" wire:model="form_name" :error="$errors->first('form_name')" />
+                <x-ui.input :label="__('customers.fullName')" wire:model="form_name" :error="$errors->first('form_name')" :required="true" />
                 <x-ui.input :label="__('customers.phoneOption')" wire:model="form_phone" dir="ltr" :error="$errors->first('form_phone')" />
                 <x-ui.input :label="__('customers.emailOption')" type="email" wire:model="form_email" dir="ltr" :error="$errors->first('form_email')" />
-                <x-ui.select :label="__('customers.colGroup')" wire:model="form_group" :options="['Regular' => 'Regular', 'VIP' => 'VIP', 'New' => 'New']" />
+                <x-ui.select :label="__('customers.colGroup')" wire:model="form_group" :options="['Regular' => 'Regular', 'VIP' => 'VIP', 'New' => 'New']" :required="true" />
                 <div>
                     <label class="mb-1.5 block text-sm font-medium text-fg">{{ __('common.notes') }}</label>
                     <textarea wire:model="form_notes" rows="3" class="w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-sm text-fg focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"></textarea>
@@ -131,7 +128,7 @@
             </div>
             <div class="flex items-center justify-end gap-2 border-t border-line px-5 py-4">
                 <x-ui.button type="button" variant="secondary" @click="open = false">{{ __('common.cancel') }}</x-ui.button>
-                <x-ui.button type="submit" wire:loading.attr="disabled" wire:target="save">{{ __('common.save') }}</x-ui.button>
+                <x-ui.button type="submit" loadingTarget="save">{{ __('common.save') }}</x-ui.button>
             </div>
         </form>
     </x-ui.slide-over>

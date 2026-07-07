@@ -9,7 +9,7 @@
     ];
 @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('waitlist.title')" :subtitle="__('waitlist.subtitle')" />
 
     @if ($this->usingFallback())

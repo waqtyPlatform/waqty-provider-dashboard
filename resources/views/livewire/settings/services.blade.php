@@ -73,13 +73,10 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-end">
-                                <div x-data="{ o: false }" @click.outside="o = false" class="relative inline-block">
-                                    <button @click="o = !o" class="grid size-8 place-items-center rounded-lg text-fg-subtle hover:bg-surface-3"><x-icon name="more-vertical" class="size-4" /></button>
-                                    <div x-show="o" x-cloak class="absolute end-0 z-10 mt-1 w-40 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg">
-                                        <button wire:click="openEdit('{{ $s->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="pencil" class="size-4" />{{ __('settings.services.edit') }}</button>
-                                        <button wire:click="confirmDelete('{{ $s->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-error hover:bg-error-light"><x-icon name="trash-2" class="size-4" />{{ __('settings.services.delete') }}</button>
-                                    </div>
-                                </div>
+                                <x-ui.dropdown>
+                                    <x-ui.dropdown-item icon="pencil" wire:click="openEdit('{{ $s->uuid }}')">{{ __('settings.services.edit') }}</x-ui.dropdown-item>
+                                    <x-ui.dropdown-item icon="trash-2" wire:click="confirmDelete('{{ $s->uuid }}')" destructive>{{ __('settings.services.delete') }}</x-ui.dropdown-item>
+                                </x-ui.dropdown>
                             </td>
                         </tr>
                     @empty
@@ -97,7 +94,7 @@
     <x-ui.slide-over wire="showForm" :title="$editingUuid ? __('settings.services.edit') : __('settings.services.createTitle')">
         <form wire:submit="save" class="flex flex-1 flex-col overflow-y-auto">
             <div class="flex-1 space-y-4 p-5">
-                <x-ui.input :label="__('settings.services.serviceName')" wire:model="form_name" :placeholder="__('settings.services.namePh')" :error="$errors->first('form_name')" />
+                <x-ui.input :label="__('settings.services.serviceName')" wire:model="form_name" :placeholder="__('settings.services.namePh')" :error="$errors->first('form_name')" required />
                 <x-ui.input label="الاسم بالعربية" wire:model="form_name_ar" dir="rtl" :error="$errors->first('form_name_ar')" />
                 <x-ui.input :label="__('settings.services.category')" wire:model="form_category" list="svc-cats" :error="$errors->first('form_category')" />
                 <datalist id="svc-cats">
@@ -106,7 +103,7 @@
                     @endforeach
                 </datalist>
                 <div class="grid grid-cols-2 gap-4">
-                    <x-ui.input type="number" :label="__('settings.services.duration')" wire:model="form_duration" min="5" max="480" :error="$errors->first('form_duration')" />
+                    <x-ui.input type="number" :label="__('settings.services.duration')" wire:model="form_duration" min="5" max="480" :error="$errors->first('form_duration')" required />
                     <x-ui.input type="number" :label="__('settings.services.price')" wire:model="form_price" min="0" step="0.01" :error="$errors->first('form_price')" />
                 </div>
                 <div>
@@ -124,7 +121,7 @@
             </div>
             <div class="flex items-center justify-end gap-2 border-t border-line px-5 py-4">
                 <x-ui.button type="button" variant="secondary" @click="open = false">{{ __('settings.services.cancel') }}</x-ui.button>
-                <x-ui.button type="submit">{{ $editingUuid ? __('settings.services.saveChanges') : __('settings.services.saveService') }}</x-ui.button>
+                <x-ui.button type="submit" loadingTarget="save">{{ $editingUuid ? __('settings.services.saveChanges') : __('settings.services.saveService') }}</x-ui.button>
             </div>
         </form>
     </x-ui.slide-over>

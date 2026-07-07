@@ -9,7 +9,7 @@
     $grandRevenue = array_sum(array_map(fn ($g) => $g['revenue'], $groups));
 @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     {{-- Print rules: hide the app chrome, show only the sheet in flat black-on-white. --}}
     <style>
         @media print {

@@ -39,13 +39,10 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-end">
-                                <div x-data="{ o: false }" @click.outside="o = false" class="relative inline-block">
-                                    <button @click="o = !o" class="grid size-8 place-items-center rounded-lg text-fg-subtle hover:bg-surface-3"><x-icon name="more-vertical" class="size-4" /></button>
-                                    <div x-show="o" x-cloak class="absolute end-0 z-10 mt-1 w-36 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg">
-                                        <button wire:click="openEdit('{{ $b->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="pencil" class="size-4" />{{ __('common.edit') }}</button>
-                                        <button wire:click="confirmDelete('{{ $b->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-error hover:bg-error-light"><x-icon name="trash-2" class="size-4" />{{ __('common.delete') }}</button>
-                                    </div>
-                                </div>
+                                <x-ui.dropdown>
+                                    <x-ui.dropdown-item icon="pencil" wire:click="openEdit('{{ $b->uuid }}')">{{ __('common.edit') }}</x-ui.dropdown-item>
+                                    <x-ui.dropdown-item icon="trash-2" wire:click="confirmDelete('{{ $b->uuid }}')" destructive>{{ __('common.delete') }}</x-ui.dropdown-item>
+                                </x-ui.dropdown>
                             </td>
                         </tr>
                     @endforeach
@@ -57,7 +54,7 @@
     <x-ui.slide-over wire="showForm" :title="$editingUuid ? __('settings.branches.editBranch') : __('settings.branches.addNewBranch')">
         <form wire:submit="save" class="flex flex-1 flex-col overflow-y-auto">
             <div class="flex-1 space-y-4 p-5">
-                <x-ui.input :label="__('settings.branches.branchName')" wire:model="form_name" :placeholder="__('settings.branches.namePh')" :error="$errors->first('form_name')" />
+                <x-ui.input :label="__('settings.branches.branchName')" wire:model="form_name" :placeholder="__('settings.branches.namePh')" :error="$errors->first('form_name')" required />
                 <x-ui.input :label="__('settings.branches.phone')" wire:model="form_phone" :error="$errors->first('form_phone')" />
                 <x-ui.input :label="__('settings.branches.city')" wire:model="form_city" :placeholder="__('settings.branches.addressPh')" :error="$errors->first('form_city')" />
                 <label class="flex items-center justify-between rounded-lg border border-line px-3.5 py-2.5">
@@ -67,7 +64,7 @@
             </div>
             <div class="flex items-center justify-end gap-2 border-t border-line px-5 py-4">
                 <x-ui.button type="button" variant="secondary" @click="open = false">{{ __('settings.branches.cancel') }}</x-ui.button>
-                <x-ui.button type="submit">{{ __('settings.branches.saveBranch') }}</x-ui.button>
+                <x-ui.button type="submit" loadingTarget="save">{{ __('settings.branches.saveBranch') }}</x-ui.button>
             </div>
         </form>
     </x-ui.slide-over>

@@ -8,7 +8,7 @@
     ];
 @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('mkt.serviceGroups.title')" :subtitle="__('mkt.serviceGroups.desc')">
         <x-slot:actions>
             <x-ui.button icon="plus" wire:click="openCreate">{{ __('mkt.serviceGroups.newGroup') }}</x-ui.button>

@@ -1,6 +1,6 @@
 @php use App\Support\Money; @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-2xl font-semibold text-fg">{{ __('reports.title') }}</h1>

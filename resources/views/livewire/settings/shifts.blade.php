@@ -34,13 +34,10 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-end">
-                                <div x-data="{ o: false }" @click.outside="o = false" class="relative inline-block">
-                                    <button @click="o = !o" class="grid size-8 place-items-center rounded-lg text-fg-subtle hover:bg-surface-3"><x-icon name="more-vertical" class="size-4" /></button>
-                                    <div x-show="o" x-cloak class="absolute end-0 z-10 mt-1 w-36 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg">
-                                        <button wire:click="openEdit('{{ $t->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="pencil" class="size-4" />{{ __('common.edit') }}</button>
-                                        <button wire:click="confirmDelete('{{ $t->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-error hover:bg-error-light"><x-icon name="trash-2" class="size-4" />{{ __('common.delete') }}</button>
-                                    </div>
-                                </div>
+                                <x-ui.dropdown>
+                                    <x-ui.dropdown-item icon="pencil" wire:click="openEdit('{{ $t->uuid }}')">{{ __('common.edit') }}</x-ui.dropdown-item>
+                                    <x-ui.dropdown-item icon="trash-2" wire:click="confirmDelete('{{ $t->uuid }}')" destructive>{{ __('common.delete') }}</x-ui.dropdown-item>
+                                </x-ui.dropdown>
                             </td>
                         </tr>
                     @endforeach
@@ -52,7 +49,7 @@
     <x-ui.slide-over wire="showForm" :title="$editingUuid ? __('settings.shiftTemplates.editTitle') : __('settings.shiftTemplates.createTitle')">
         <form wire:submit="save" class="flex flex-1 flex-col overflow-y-auto">
             <div class="flex-1 space-y-4 p-5">
-                <x-ui.input :label="__('settings.shiftTemplates.templateName')" wire:model="form_name" :placeholder="__('settings.shiftTemplates.namePh')" :error="$errors->first('form_name')" />
+                <x-ui.input :label="__('settings.shiftTemplates.templateName')" wire:model="form_name" :placeholder="__('settings.shiftTemplates.namePh')" :error="$errors->first('form_name')" :required="true" />
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="mb-1.5 block text-sm font-medium text-fg">{{ __('settings.shiftTemplates.startTime') }}</label>
@@ -72,7 +69,7 @@
             </div>
             <div class="flex items-center justify-end gap-2 border-t border-line px-5 py-4">
                 <x-ui.button type="button" variant="secondary" @click="open = false">{{ __('common.cancel') }}</x-ui.button>
-                <x-ui.button type="submit">{{ $editingUuid ? __('settings.shiftTemplates.saveChanges') : __('settings.shiftTemplates.createBtn') }}</x-ui.button>
+                <x-ui.button type="submit" loadingTarget="save">{{ $editingUuid ? __('settings.shiftTemplates.saveChanges') : __('settings.shiftTemplates.createBtn') }}</x-ui.button>
             </div>
         </form>
     </x-ui.slide-over>

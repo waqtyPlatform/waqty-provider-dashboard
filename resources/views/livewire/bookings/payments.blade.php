@@ -14,7 +14,7 @@
     ];
 @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('payments.title')" :subtitle="__('payments.subtitle')">
         <x-slot:actions>
             <x-ui.button icon="wallet" wire:click="openCreate">{{ __('payments.recordPayment') }}</x-ui.button>
@@ -87,19 +87,16 @@
                                 <td class="px-4 py-3 font-mono text-xs text-fg-muted" dir="ltr">{{ $p->transaction_id ?: '—' }}</td>
                                 <td class="px-4 py-3 text-fg-muted">{{ $p->created_at ? Carbon::parse($p->created_at)->isoFormat('D MMM YYYY') : '—' }}</td>
                                 <td class="px-4 py-3 text-end">
-                                    <div x-data="{ o: false }" @click.outside="o = false" class="relative inline-block">
-                                        <button @click="o = !o" class="grid size-8 place-items-center rounded-lg text-fg-subtle hover:bg-surface-3"><x-icon name="more-vertical" class="size-4" /></button>
-                                        <div x-show="o" x-cloak class="absolute end-0 z-10 mt-1 w-44 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg">
-                                            <button wire:click="openEdit('{{ $p->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="pencil" class="size-4" />{{ __('common.edit') }}</button>
-                                            @if ($p->status !== 'completed')
-                                                <button wire:click="complete('{{ $p->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-success hover:bg-success-light"><x-icon name="check-circle-2" class="size-4" />{{ __('payments.actionComplete') }}</button>
-                                            @endif
-                                            @if ($p->status !== 'refunded')
-                                                <button wire:click="refund('{{ $p->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-fg hover:bg-surface-2"><x-icon name="rotate-ccw" class="size-4" />{{ __('payments.actionRefund') }}</button>
-                                            @endif
-                                            <button wire:click="confirmDelete('{{ $p->uuid }}')" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-error hover:bg-error-light"><x-icon name="trash-2" class="size-4" />{{ __('common.delete') }}</button>
-                                        </div>
-                                    </div>
+                                    <x-ui.dropdown>
+                                        <x-ui.dropdown-item icon="pencil" wire:click="openEdit('{{ $p->uuid }}')">{{ __('common.edit') }}</x-ui.dropdown-item>
+                                        @if ($p->status !== 'completed')
+                                            <x-ui.dropdown-item icon="check-circle-2" wire:click="complete('{{ $p->uuid }}')">{{ __('payments.actionComplete') }}</x-ui.dropdown-item>
+                                        @endif
+                                        @if ($p->status !== 'refunded')
+                                            <x-ui.dropdown-item icon="rotate-ccw" wire:click="refund('{{ $p->uuid }}')">{{ __('payments.actionRefund') }}</x-ui.dropdown-item>
+                                        @endif
+                                        <x-ui.dropdown-item icon="trash-2" wire:click="confirmDelete('{{ $p->uuid }}')" destructive>{{ __('common.delete') }}</x-ui.dropdown-item>
+                                    </x-ui.dropdown>
                                 </td>
                             </tr>
                         @endforeach
@@ -114,10 +111,10 @@
     <x-ui.slide-over wire="showForm" :title="$editingUuid ? __('payments.editTitle') : __('payments.recordPayment')">
         <form wire:submit="save" class="flex flex-1 flex-col overflow-y-auto">
             <div class="flex-1 space-y-4 p-5">
-                <x-ui.input :label="__('payments.lblBookingUuid')" wire:model="form_booking_uuid" dir="ltr" :placeholder="__('payments.phBookingUuid')" :error="$errors->first('form_booking_uuid')" :disabled="(bool) $editingUuid" />
-                <x-ui.input :label="__('payments.lblAmount')" type="number" step="0.01" min="0" wire:model="form_amount" dir="ltr" :error="$errors->first('form_amount')" />
-                <x-ui.select :label="__('payments.lblPaymentMethod')" wire:model="form_payment_method" :options="['cash' => __('payments.methodCash'), 'paymob' => __('payments.methodPaymob')]" :error="$errors->first('form_payment_method')" />
-                <x-ui.select :label="__('common.status')" wire:model="form_status" :options="['pending' => __('payments.statusPending'), 'completed' => __('payments.statusCompleted'), 'failed' => __('payments.statusFailed'), 'refunded' => __('payments.statusRefunded')]" :error="$errors->first('form_status')" />
+                <x-ui.input :label="__('payments.lblBookingUuid')" wire:model="form_booking_uuid" dir="ltr" :placeholder="__('payments.phBookingUuid')" :error="$errors->first('form_booking_uuid')" :disabled="(bool) $editingUuid" :required="true" />
+                <x-ui.input :label="__('payments.lblAmount')" type="number" step="0.01" min="0" wire:model="form_amount" dir="ltr" :error="$errors->first('form_amount')" :required="true" />
+                <x-ui.select :label="__('payments.lblPaymentMethod')" wire:model="form_payment_method" :options="['cash' => __('payments.methodCash'), 'paymob' => __('payments.methodPaymob')]" :error="$errors->first('form_payment_method')" :required="true" />
+                <x-ui.select :label="__('common.status')" wire:model="form_status" :options="['pending' => __('payments.statusPending'), 'completed' => __('payments.statusCompleted'), 'failed' => __('payments.statusFailed'), 'refunded' => __('payments.statusRefunded')]" :error="$errors->first('form_status')" :required="true" />
                 <x-ui.input :label="__('payments.colTransactionId')" wire:model="form_transaction_id" dir="ltr" :placeholder="__('payments.phTransactionId')" :error="$errors->first('form_transaction_id')" />
                 <div>
                     <label class="mb-1.5 block text-sm font-medium text-fg">{{ __('common.notes') }}</label>
@@ -126,7 +123,7 @@
             </div>
             <div class="flex items-center justify-end gap-2 border-t border-line px-5 py-4">
                 <x-ui.button type="button" variant="secondary" @click="open = false">{{ __('common.cancel') }}</x-ui.button>
-                <x-ui.button type="submit" wire:loading.attr="disabled" wire:target="save">{{ $editingUuid ? __('payments.saveChanges') : __('payments.record') }}</x-ui.button>
+                <x-ui.button type="submit" loadingTarget="save">{{ $editingUuid ? __('payments.saveChanges') : __('payments.record') }}</x-ui.button>
             </div>
         </form>
     </x-ui.slide-over>

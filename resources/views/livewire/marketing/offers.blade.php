@@ -1,6 +1,6 @@
 @php use App\Support\Money; use Illuminate\Support\Carbon; @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('mkt.lblOffers')" :subtitle="__('marketing.desc')">
         <x-slot:actions>
             <x-ui.button icon="plus" wire:click="openCreate">{{ __('mkt.btnNewOffer') }}</x-ui.button>

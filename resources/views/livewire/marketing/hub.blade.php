@@ -28,7 +28,7 @@
 
     <x-ui.card padding="p-0">
         @if (count($this->preview) === 0)
-            <div class="p-6">
+            <div class="p-4 sm:p-6">
                 <x-ui.empty-state :title="__('mkt.hub.emptyTitle')" :description="__('mkt.hub.emptyDesc')" icon="megaphone">
                     <x-ui.button icon="plus" :href="route('marketing.campaigns')" wire:navigate>{{ __('marketing.createFirstCamp') }}</x-ui.button>
                 </x-ui.empty-state>

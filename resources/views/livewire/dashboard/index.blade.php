@@ -7,7 +7,7 @@
     $fmtTrend = fn ($v) => ($v >= 0 ? '+' : '').number_format($v, 1).'%';
 @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     {{-- Header --}}
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -75,7 +75,7 @@
         </x-ui.card>
         <x-ui.card class="flex items-center gap-3">
             <span class="grid size-10 place-items-center rounded-xl bg-primary-100 text-primary-600"><x-icon name="gauge" class="size-5" /></span>
-            <div><p class="text-sm text-fg-muted">{{ __('dash.occupancy') ?? 'Occupancy' }}</p><p class="text-lg font-semibold text-fg">{{ number_format($s->occupancy_rate, 1) }}%</p></div>
+            <div><p class="text-sm text-fg-muted">{{ __('dash.occupancy') }}</p><p class="text-lg font-semibold text-fg">{{ number_format($s->occupancy_rate, 1) }}%</p></div>
         </x-ui.card>
     </div>
 

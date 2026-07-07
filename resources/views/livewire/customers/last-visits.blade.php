@@ -1,6 +1,6 @@
 @php use Illuminate\Support\Carbon; @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('sidebar.lastVisits')" :subtitle="__('lastVisit.subtitle')" />
 
     @if ($this->usingFallback())

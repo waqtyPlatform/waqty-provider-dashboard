@@ -10,7 +10,7 @@
     ];
 @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('txn.title')" :subtitle="__('txn.desc')" />
 
     @if ($this->usingFallback())

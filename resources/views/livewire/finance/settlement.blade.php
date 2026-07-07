@@ -1,6 +1,6 @@
 @php use App\Support\Money; use Illuminate\Support\Carbon; $s = $this->summary(); @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('settle.title')" :subtitle="__('settle.subtitle')" />
 
     {{-- Net payable hero --}}

@@ -31,12 +31,9 @@
                             <td class="px-4 py-3 text-fg-muted">{{ $d['lastActive'] }}</td>
                             <td class="px-4 py-3 text-fg-muted">{{ $d['location'] }}</td>
                             <td class="px-4 py-3 text-end">
-                                <div x-data="{ o: false }" @click.outside="o = false" class="relative inline-block">
-                                    <button @click="o = !o" class="grid size-8 place-items-center rounded-lg text-fg-subtle hover:bg-surface-3"><x-icon name="more-vertical" class="size-4" /></button>
-                                    <div x-show="o" x-cloak class="absolute end-0 z-10 mt-1 w-36 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg">
-                                        <button wire:click="revoke({{ $d['id'] }})" @click="o=false" class="flex w-full items-center gap-2 px-3 py-2 text-start text-sm text-error hover:bg-error-light"><x-icon name="log-out" class="size-4" />{{ __('settings.devices.revoke') }}</button>
-                                    </div>
-                                </div>
+                                <x-ui.dropdown>
+                                    <x-ui.dropdown-item icon="log-out" wire:click="revoke({{ $d['id'] }})" destructive>{{ __('settings.devices.revoke') }}</x-ui.dropdown-item>
+                                </x-ui.dropdown>
                             </td>
                         </tr>
                     @endforeach

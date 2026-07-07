@@ -1,6 +1,6 @@
 @php $staff = $provider->terminology()['staff']; @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('sidebar.employees')" :subtitle="__('employees.totalTeam')">
         <x-slot:actions>
             <x-ui.button icon="user-plus" wire:click="openCreate">{{ __('employees.inviteStaff') }}</x-ui.button>
@@ -8,7 +8,7 @@
     </x-ui.page-header>
 
     @if ($this->usingFallback())
-        <x-ui.alert type="info" class="mb-4">{{ __('common.sampleData') ?? 'Showing sample data — the live API is unavailable.' }}</x-ui.alert>
+        <x-ui.alert type="info" class="mb-4">{{ __('common.sampleData') }}</x-ui.alert>
     @endif
 
     {{-- KPIs --}}
@@ -56,9 +56,9 @@
                     <thead>
                         <tr class="border-b border-line text-start text-xs font-semibold uppercase tracking-wide text-fg-subtle">
                             <th class="px-4 py-3 text-start font-semibold">{{ $staff }}</th>
-                            <th class="px-4 py-3 text-start font-semibold">{{ __('employees.phoneOrEmail') ?? 'Contact' }}</th>
+                            <th class="px-4 py-3 text-start font-semibold">{{ __('employees.phoneOrEmail') }}</th>
                             <th class="px-4 py-3 text-start font-semibold">{{ __('employees.branch') }}</th>
-                            <th class="px-4 py-3 text-start font-semibold">{{ __('employees.systemRole') ?? 'Role' }}</th>
+                            <th class="px-4 py-3 text-start font-semibold">{{ __('employees.systemRole') }}</th>
                             <th class="px-4 py-3 text-start font-semibold">{{ __('common.status') }}</th>
                             <th class="px-4 py-3"></th>
                         </tr>

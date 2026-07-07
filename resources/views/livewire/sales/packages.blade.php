@@ -1,6 +1,6 @@
 @php use App\Support\Money; @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('sales.lblPackages')" :subtitle="__('sales.noPackagesDesc')">
         <x-slot:actions>
             <x-ui.button icon="plus" wire:click="openCreate">{{ __('sales.lblSellPackage') }}</x-ui.button>

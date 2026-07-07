@@ -1,6 +1,6 @@
 @php use App\Support\Money; use Illuminate\Support\Carbon; @endphp
 
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <x-ui.page-header :title="__('expenses.title')" :subtitle="__('expenses.desc')">
         <x-slot:actions>
             <x-ui.button icon="plus" wire:click="openCreate">{{ __('expenses.add') }}</x-ui.button>
@@ -86,18 +86,18 @@
     <x-ui.slide-over wire="showForm" :title="__('expenses.addTitle')">
         <form wire:submit="save" class="flex flex-1 flex-col overflow-y-auto">
             <div class="flex-1 space-y-4 p-5">
-                <x-ui.input :label="__('expenses.lblDescription')" wire:model="form_description" :error="$errors->first('form_description')" />
+                <x-ui.input :label="__('expenses.lblDescription')" wire:model="form_description" :error="$errors->first('form_description')" required />
                 <div class="grid grid-cols-2 gap-3">
-                    <x-ui.input type="number" :label="__('expenses.lblAmount')" wire:model="form_amount" min="0" step="0.01" :error="$errors->first('form_amount')" />
-                    <x-ui.input type="date" :label="__('expenses.lblDate')" wire:model="form_date" :error="$errors->first('form_date')" />
+                    <x-ui.input type="number" :label="__('expenses.lblAmount')" wire:model="form_amount" min="0" step="0.01" :error="$errors->first('form_amount')" required />
+                    <x-ui.input type="date" :label="__('expenses.lblDate')" wire:model="form_date" :error="$errors->first('form_date')" required />
                 </div>
-                <x-ui.select :label="__('expenses.lblCategory')" wire:model="form_category" :options="collect($this->categories())->mapWithKeys(fn ($c) => [$c => __('exp.cat.'.$c)])->toArray()" />
+                <x-ui.select :label="__('expenses.lblCategory')" wire:model="form_category" :options="collect($this->categories())->mapWithKeys(fn ($c) => [$c => __('exp.cat.'.$c)])->toArray()" required />
                 <x-ui.input :label="__('expenses.lblVendor')" wire:model="form_vendor" :error="$errors->first('form_vendor')" />
-                <x-ui.select :label="__('exp.thMethod')" wire:model="form_method" :options="['cash' => __('expenses.methodCash'), 'card' => __('expenses.methodCard'), 'transfer' => __('expenses.methodTransfer')]" />
+                <x-ui.select :label="__('exp.thMethod')" wire:model="form_method" :options="['cash' => __('expenses.methodCash'), 'card' => __('expenses.methodCard'), 'transfer' => __('expenses.methodTransfer')]" required />
             </div>
             <div class="flex items-center justify-end gap-2 border-t border-line px-5 py-4">
                 <x-ui.button type="button" variant="secondary" @click="open = false">{{ __('common.cancel') }}</x-ui.button>
-                <x-ui.button type="submit" wire:loading.attr="disabled" wire:target="save">{{ __('common.save') }}</x-ui.button>
+                <x-ui.button type="submit" loadingTarget="save">{{ __('common.save') }}</x-ui.button>
             </div>
         </form>
     </x-ui.slide-over>
