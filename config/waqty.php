@@ -38,4 +38,12 @@ return [
         'whatsapp' => env('WAQTY_SUPPORT_WHATSAPP', '201000000000'),
     ],
 
+    // Local-only provider credential for previewing the login form without API access.
+    'local_login' => [
+        'enabled' => (bool) env('WAQTY_LOCAL_LOGIN_ENABLED', false),
+        'email' => env('WAQTY_LOCAL_LOGIN_EMAIL', 'test@waqty.local'),
+        'password' => env('WAQTY_LOCAL_LOGIN_PASSWORD', 'password123'),
+        'business_type' => env('WAQTY_LOCAL_LOGIN_BUSINESS_TYPE', 'salon'),
+    ],
+
 ];

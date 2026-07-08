@@ -22,6 +22,10 @@ class AuthService
      */
     public function authenticateProvider(string $email, string $password): void
     {
+        if ($this->attemptLocalProviderLogin($email, $password)) {
+            return;
+        }
+
         $data = $this->api->post('/api/provider/auth/login', [
             'email' => $email,
             'password' => $password,
@@ -111,5 +115,34 @@ class AuthService
             'role' => data_get($profile, 'role', 'admin'),
             'business_type' => BusinessCategory::normalize(is_string($categoryName) ? $categoryName : null)->value,
         ];
+    }
+
+    private function attemptLocalProviderLogin(string $email, string $password): bool
+    {
+        if (! app()->environment('local') || ! config('waqty.local_login.enabled')) {
+            return false;
+        }
+
+        $localEmail = (string) config('waqty.local_login.email');
+        $localPassword = (string) config('waqty.local_login.password');
+
+        if (! hash_equals(mb_strtolower($localEmail), mb_strtolower($email)) || ! hash_equals($localPassword, $password)) {
+            return false;
+        }
+
+        $businessType = (string) config('waqty.local_login.business_type', 'salon');
+
+        session([
+            config('waqty.session.provider_token') => 'local-test-token',
+            config('waqty.session.provider_profile') => [
+                'name' => 'Waqty Test Provider',
+                'email' => $localEmail,
+                'role' => 'admin',
+                'business_type' => $businessType,
+                'category' => ['name' => ucfirst($businessType)],
+            ],
+        ]);
+
+        return true;
     }
 }
